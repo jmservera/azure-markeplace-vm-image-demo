@@ -1,8 +1,7 @@
 #!/bin/sh
 
-apt-get update
-apt-get upgrade -y
-apt-get install docker-ce docker-compose
+curl -fsSL https://get.docker.com -o get-docker.sh
+sh get-docker.sh
 
 mkdir /usr/share/nginx
 mkdir /usr/share/nginx/html
