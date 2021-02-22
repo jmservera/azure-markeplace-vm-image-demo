@@ -52,14 +52,13 @@
     "namingInfix": "[toLower(substring(concat(parameters('vmName'), uniqueString(resourceGroup().id)), 0, 9))]",
     "storageAccountType": "Standard_LRS",
     "newStorageAccountSuffix": "[concat(variables('namingInfix'), 'sa')]",
-    "vhdContainerName": "[concat(variables('namingInfix'), 'vhd')]",
-    "osDiskVhdName": "[concat('http://',concat(variables('namingInfix'), variables('newStorageAccountSuffix')),'.blob.core.windows.net/vhds/',parameters('vmName'),'osDisk.vhd')]",
     "addressPrefix": "10.0.0.0/16",
     "subnetPrefix": "10.0.0.0/24",
     "virtualNetworkName": "[concat(variables('namingInfix'), 'vnet')]",
     "subnetName": "[concat(variables('namingInfix'), 'subnet')]",
     "pipName": "[concat(variables('namingInfix'), 'pip')]",
     "nicName": "[concat(variables('namingInfix'), 'nic')]",
+    "nsgName": "[concat(variables('namingInfix'), 'nsg')]",
     "location": "[resourceGroup().location]",
     "sourceImageVhdUri": "https://vmdisksjm01.blob.core.windows.net/marketplacedisks/mydisk.vhd"
   },
@@ -78,13 +77,17 @@
             "blobUri": "[variables('sourceImageVhdUri')]",
             "storageAccountType": "Standard_LRS"
           }
-        }
+        },
+        "hyperVGeneration":"V2"
       }
     },
     {
       "type": "Microsoft.Network/virtualNetworks",
       "name": "[variables('virtualNetworkName')]",
       "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
+      ],
       "apiVersion": "2016-03-30",
       "properties": {
         "addressSpace": {
@@ -102,7 +105,6 @@
         ]
       }
     },
-
     {
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2015-06-15",
@@ -110,9 +112,13 @@
       "location": "[variables('location')]",
       "dependsOn": [
         "[concat('Microsoft.Network/publicIPAddresses/', variables('pipName'))]",
-        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
       ],
       "properties": {
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
+        },
         "ipConfigurations": [
           {
             "name": "ipconfig1",
@@ -130,10 +136,10 @@
       }
     },
     {
-      "name": "networkSecurityGroup1",
+      "name": "[variables('nsgName')]",
       "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2019-11-01",
-      "location": "[resourceGroup().location]",
+      "location": "[variables('location')]",
       "properties": {
         "securityRules": [
           {
