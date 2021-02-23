@@ -12,7 +12,7 @@ sasExpiryDuration=3600
 storageAccountName="vmdisksjm01"
 storageSKU="Standard_LRS"
 storageContainerName="marketplacedisks"
-destinationVHDFileName="jmimage02.vhd"
+destinationVHDFileName="jmimage01.vhd"
 
 #----
 
