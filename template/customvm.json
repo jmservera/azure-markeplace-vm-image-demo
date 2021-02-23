@@ -238,6 +238,10 @@
     "fqdn": {
       "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses/',variables('pipName')),'2016-03-30').dnsSettings.fqdn]",
       "type": "string"
+    },
+    "storage":{
+      "value":"[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('newStorageAccountSuffix')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]",
+      "type": "string"
     }
   }
 }
