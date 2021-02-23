@@ -36,12 +36,14 @@
     },
     "adminUsername": {
       "type": "string",
+      "defaultValue":"customadmin",
       "metadata": {
         "description": "Admin username on all VMs."
       }
     },
     "adminPassword": {
       "type": "securestring",
+      "defaultValue":"4dmin@Pss2",
       "metadata": {
         "description": "Admin password on all VMs."
       }
@@ -99,7 +101,7 @@
       "name": "[variables('virtualNetworkName')]",
       "location": "[parameters('location')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
+        "[resourceId('Microsoft.Network/networkSecurityGroups/', variables('nsgName'))]"
       ],
       "apiVersion": "2016-03-30",
       "properties": {
@@ -126,11 +128,11 @@
       "dependsOn": [
         "[resourceId('Microsoft.Network/publicIPAddresses/', variables('pipName'))]",
         "[resourceId('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
-        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
+        "[resourceId('Microsoft.Network/networkSecurityGroups/', variables('nsgName'))]"
       ],
       "properties": {
         "networkSecurityGroup": {
-          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups/', variables('nsgName'))]"
         },
         "ipConfigurations": [
           {
@@ -138,10 +140,10 @@
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
               "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('pipName'))]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses/',variables('pipName'))]"
               },
               "subnet": {
-                "id": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'),'/subnets/',variables('subnetName'))]"
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets/',variables('virtualNetworkName'),variables('subnetName'))]"
               }
             }
           }
@@ -219,13 +221,13 @@
             }
           },
           "imageReference": {
-            "id": "[resourceId('Microsoft.Compute/images', variables('imageName'))]"
+            "id": "[resourceId('Microsoft.Compute/images/', variables('imageName'))]"
           }
         },
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('nicName'))]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces/',variables('nicName'))]"
             }
           ]
         }
@@ -234,7 +236,7 @@
   ],
   "outputs": {
     "fqdn": {
-      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('pipName')),'2016-03-30').dnsSettings.fqdn]",
+      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses/',variables('pipName')),'2016-03-30').dnsSettings.fqdn]",
       "type": "string"
     }
   }
