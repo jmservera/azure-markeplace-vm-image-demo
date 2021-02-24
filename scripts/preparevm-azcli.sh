@@ -1,24 +1,28 @@
 #!/bin/bash
 
-resourceGroupName="jmtest01_group"
-vmName="jmtest01"
+#--- First step variables
+resourceGroupName="jmmktest01_group"
+vmName="jmmktest01"
 location="northeurope"
-snapshotName="vmsnapshot02"
+snapshotName="vmsnapshot01"
 
 sasExpiryDuration=3600
 
-#----
+#---- Image extraction variables
 
 storageAccountName="vmdisksjm01"
 storageSKU="Standard_LRS"
 storageContainerName="marketplacedisks"
 destinationVHDFileName="jmimage01.vhd"
+imageName="jmimage01"
 
-#----
+#---- VM test variables
 
 testRG="${resourceGroupName}_test"
 testVmName="${vmName}02"
 
+
+#---- Script start
 
 echo "Deallocating VM, this is needed in order to stop and create a snapshot"
 az vm deallocate -g $resourceGroupName -n $vmName
@@ -60,9 +64,13 @@ echo "Done copying, extracting the URI for the vhd"
 vhduri=$(az storage blob url --account-name $storageAccountName --container-name $storageContainerName --name $destinationVHDFileName -o tsv)
 echo "Access uri: $vhduri"
 
+echo "Private image creation"
+
+imageId=$(az image create --name $imageName --resource-group $resourceGroupName --source $vhduri --os-type Linux --storage-sku $storageSKU --hyper-v-generation V2 --query id -o tsv)
+
 echo "Generate a test deployment to check our VM works"
 az group create -n $testRG -l $location
-vmurl=$(az deployment group create -g $testRG --template-file ../template/customvm.json --parameters "{ \"sourceImageVhdUri\": {\"value\": \"$vhduri\"}, \"vmName\": {\"value\": \"${testVmName}\"}}" --query properties.outputs.fqdn.value -o tsv)
+vmurl=$(az deployment group create -g $testRG --template-file ../template/customvm.json --parameters "{ \"vmName\": {\"value\": \"${testVmName}\"}, \"imageName\": {\"value\": \"${imageId}\"} }" --query properties.outputs.fqdn.value -o tsv)
 
 echo "Deployment finished. Checking $vmurl output"
 curl http://$vmurl:8000
