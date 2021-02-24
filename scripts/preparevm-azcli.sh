@@ -73,6 +73,7 @@ az group create -n $testRG -l $location
 vmurl=$(az deployment group create -g $testRG --template-file ../template/customvm.json --parameters "{ \"vmName\": {\"value\": \"${testVmName}\"}, \"imageName\": {\"value\": \"${imageId}\"} }" --query properties.outputs.fqdn.value -o tsv)
 
 echo "Deployment finished. Checking $vmurl output"
-echo "Warm up wait"
+echo -n "Warm up wait..."
 sleep 15
+echo "calling http endpoint.."
 curl http://$vmurl:8000
