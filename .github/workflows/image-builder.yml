@@ -34,12 +34,12 @@ jobs:
             errorState=0
             providers=("Microsoft.VirtualMachineImages" "Microsoft.KeyVault" "Microsoft.Compute" "Microsoft.Storage" "Microsoft.Network")
             for provider in providers; do
-              state=$(az provider show --namespace ${feat} -o tsv --query registrationState)
+              state=$(az provider show --namespace ${provider} -o tsv --query registrationState)
               if [ $state != 'Registered' ]; then
-                      echo -e "::error::Account not registered for feature ${feat}\nPlease run this in your account:\n\taz provider register --namespace ${feat}"
+                      echo -e "::error::Account not registered for feature ${provider}\nPlease run this in your account:\n\taz provider register --namespace ${provider}"
                       errorState=1
               else
-                      echo -e "::warning::Feature ${feat} registered!"
+                      echo -e "::warning::Provider ${provider} registered!"
               fi
             done
 
