@@ -82,11 +82,7 @@ jobs:
         with:
           azcliversion: latest
           inlineScript: |
-            ls -laF
-
-            echo $IDENTITY
-
-            id=$(grep "id" <<< $IDENTITY)
+            $id=$(echo $IDENTITY | grep "id")
 
             echo "will try to echo id"
             echo "$id"
@@ -98,7 +94,7 @@ jobs:
             sed -i -e "s/<region1>/$REGION1/g" createimage.json
             sed -i -e "s/<region2>/$REGION2/g" createimage.json
             sed -i -e "s/<runOutputName>/$OUTNAME/g" createimage.json
-            sed -i -e "s/<imgBuilderId>/$BUILDERID/g" createimage.json
+            sed -i -e "s/<imgBuilderId>/$id/g" createimage.json
 
             cat createimage.json
 
