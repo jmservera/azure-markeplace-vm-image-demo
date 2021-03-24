@@ -24,7 +24,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      # - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
       
       - name: Azure Login
         uses: Azure/login@v1.1
@@ -66,3 +66,27 @@ jobs:
             fi
 
             exit $errorState
+
+      - name: Build image
+        uses: azure/CLI@1.0.4
+        with:
+          azcliversion: latest
+          env:
+            RESOURCE_GROUP: 'marketplace-image-demo'
+            IMAGE_DEF_NAME: 'myimagedefname'
+            GALLERY_NAME: 'myimagegal'
+            REGION1: 'northeurope'
+            REGION2: 'westeurope'
+            OUTNAME: 'aibLinuxCustom'
+          inlineScript: |
+            ACCOUNT_ID=$(az account show --query id -o tsv)
+            sed -i -e "s/<subscriptionID>/$ACCOUNT_ID/g" createimage.json
+            sed -i -e "s/<rgName>/$RESOURCE_GROUP/g" createimage.json
+            sed -i -e "s/<imageDefName>/$IMAGE_DEF_NAME/g" createimage.json
+            sed -i -e "s/<region1>/$REGION1/g" createimage.json
+            sed -i -e "s/<region2>/$REGION2/g" createimage.json
+            sed -i -e "s/<runOutputName>/$OUTNAME/g" createimage.json
+#            sed -i -e "s/<imgBuilderId>/$BUILDERID/g" createimage.json
+
+            az resource create -g $RESOURCE_GROUP --properties @createimage.json --is-full-object --resource-type Microsoft.VirtualMachineImages/imageTemplates -n simpleImageTemplate01
+            
