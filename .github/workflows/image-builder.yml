@@ -80,8 +80,12 @@ jobs:
         with:
           azcliversion: latest
           inlineScript: |
-            grep "id" $IDENTITY
-            
+            grep "id" <<< "$IDENTITY"
+
+            echo $IDENTITY
+
+            ls -laF
+
             ACCOUNT_ID=$(az account show --query id -o tsv)
             sed -i -e "s/<subscriptionID>/$ACCOUNT_ID/g" createimage.json
             sed -i -e "s/<rgName>/$RESOURCE_GROUP/g" createimage.json
@@ -90,8 +94,6 @@ jobs:
             sed -i -e "s/<region2>/$REGION2/g" createimage.json
             sed -i -e "s/<runOutputName>/$OUTNAME/g" createimage.json
             sed -i -e "s/<imgBuilderId>/$BUILDERID/g" createimage.json
-
-            
 
             cat createimage.json
 
