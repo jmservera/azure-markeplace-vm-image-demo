@@ -27,7 +27,6 @@ jobs:
           creds:  ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Check az providers and feature registration
-        description: 
         uses: azure/CLI@1.0.4
         with:
           azcliversion: latest
