@@ -31,15 +31,11 @@ jobs:
         with:
           azcliversion: latest
           inlineScript: |
-            BLUE='\033[1;34m'
-            RED='\033[1;31m'
-            NC='\033[0m'
-
             state=$(az feature show --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview -o tsv --query properties.state)
 
-            if [ $state != 'Registered' ]; then
-                    >&2 echo -e "${RED}Account not registered for VirtualMachineTemplatePreview${NC}\nPlease run this in your account:\n\t${BLUE}az feature register --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview${NC}"
+            if [ $state != 'Registeredx' ]; then
+                    >&2 echo -e "::error Account not registered for VirtualMachineTemplatePreview\nPlease run this in your account:\n\taz feature register --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview"
                     exit 1
             else
-                    echo -e "${BLUE}Feature registered!${NC}"
+                    echo -e "::warning Feature registered!"
             fi
