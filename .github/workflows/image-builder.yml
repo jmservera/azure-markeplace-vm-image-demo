@@ -26,30 +26,38 @@ jobs:
           # Paste output of `az ad sp create-for-rbac` as value of secret variable: AZURE_CREDENTIALS
           creds:  ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Azure CLI script to check for registration
+      - name: Check az providers and feature registration
+        description: 
         uses: azure/CLI@1.0.4
         with:
           azcliversion: latest
           inlineScript: |
+            #constants
+            BLUE='\033[1;34m'
+            RED='\033[1;31m'
+            NC='\033[0m'
             errorState=0
+
+            # Check provider list
             providers=("Microsoft.VirtualMachineImages" "Microsoft.KeyVault" "Microsoft.Compute" "Microsoft.Storage" "Microsoft.Network")
             for provider in ${providers[@]}; do
               state=$(az provider show --namespace ${provider} -o tsv --query registrationState)
-              if [ $state != 'Registered' ]; then
-                      echo -e "::error::Account not registered for provider ${provider}\nPlease run this in your account:\n\taz provider register --namespace ${provider}"
+              if [ $state != 'Registeredd' ]; then
+                      echo -e "::error::Account not registered for provider ${provider}\nPlease run this in your account:\n\t${BLUE}az provider register --namespace ${provider}${NC}"
                       errorState=1
               else
-                      echo -e "::warning::Provider ${provider} registered!"
+                      echo "::debug::Provider ${provider} registered!"
               fi
             done
 
-            state=$(az feature show --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview -o tsv --query properties.state)
+            #check vm template feature (needed because it's still in preview)
 
+            state=$(az feature show --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview -o tsv --query properties.state)
             if [ $state != 'Registered' ]; then
                     echo -e "::error::Account not registered for VirtualMachineTemplatePreview\nPlease run this in your account:\n\taz feature register --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview"
                     errorState=1
             else
-                    echo -e "::warning::Feature registered!"
+                    echo "::debug::Feature registered!"
             fi
 
             exit $errorState
