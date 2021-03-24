@@ -3,7 +3,13 @@
 name: CD
 
 # Controls when the action will run. 
-on: [push]
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment name'
+        required: true
+        default: 'juanserv'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -13,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     
     environment:
-      name: juanserv
+      name: ${{ github.event.inputs.environment }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
