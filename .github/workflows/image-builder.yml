@@ -28,12 +28,14 @@ jobs:
       
       - name: Azure Login
         uses: Azure/login@v1.1
+        if: ${{ false }}
         with:
           # Paste output of `az ad sp create-for-rbac` as value of secret variable: AZURE_CREDENTIALS
           creds:  ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Check az providers and feature registration
         uses: azure/CLI@1.0.4
+        if: ${{ false }}
         with:
           azcliversion: latest
           inlineScript: |
