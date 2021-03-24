@@ -80,11 +80,9 @@ jobs:
         with:
           azcliversion: latest
           inlineScript: |
-            grep "id" <<< "$IDENTITY"
-
-            echo $IDENTITY
-
             ls -laF
+
+            grep "id" <<< $IDENTITY                      
 
             ACCOUNT_ID=$(az account show --query id -o tsv)
             sed -i -e "s/<subscriptionID>/$ACCOUNT_ID/g" createimage.json
