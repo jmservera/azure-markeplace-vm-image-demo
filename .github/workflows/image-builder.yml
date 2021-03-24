@@ -82,7 +82,9 @@ jobs:
         with:
           azcliversion: latest
           inlineScript: |
-            id=$(echo $IDENTITY | grep "id")
+            echo "try jq"
+            jq
+            id=$(echo $IDENTITY | jq .clientId)
 
             echo "will try to echo id"
             echo "$id"
