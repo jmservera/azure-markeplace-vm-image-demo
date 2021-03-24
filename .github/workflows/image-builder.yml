@@ -33,7 +33,7 @@ jobs:
           inlineScript: |
             errorState=0
             providers=("Microsoft.VirtualMachineImages" "Microsoft.KeyVault" "Microsoft.Compute" "Microsoft.Storage" "Microsoft.Network")
-            for provider in providers; do
+            for provider in $providers; do
               state=$(az provider show --namespace ${provider} -o tsv --query registrationState)
               if [ $state != 'Registered' ]; then
                       echo -e "::error::Account not registered for feature ${provider}\nPlease run this in your account:\n\taz provider register --namespace ${provider}"
