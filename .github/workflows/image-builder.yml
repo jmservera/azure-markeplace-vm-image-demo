@@ -31,10 +31,25 @@ jobs:
         with:
           azcliversion: latest
           inlineScript: |
+            errorState=0
+            providers=("Microsoft.VirtualMachineImages" "Microsoft.KeyVault" "Microsoft.Compute" "Microsoft.Storage" "Microsoft.Network")
+            for provider in providers; do
+              state=$(az provider show --namespace ${feat} -o tsv --query registrationState)
+              if [ $state != 'Registered' ]; then
+                      echo -e "::error::Account not registered for feature ${feat}\nPlease run this in your account:\n\taz provider register --namespace ${feat}"
+                      errorState=1
+              else
+                      echo -e "::warning::Feature ${feat} registered!"
+              fi
+            done
+
             state=$(az feature show --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview -o tsv --query properties.state)
 
-            if [ $state != 'Registeredx' ]; then
-                    echo -e "::error::Account not registered for VirtualMachineTemplatePreview\nPlease run this in your account:\n\taz feature register --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview"; exit 1;
+            if [ $state != 'Registered' ]; then
+                    echo -e "::error::Account not registered for VirtualMachineTemplatePreview\nPlease run this in your account:\n\taz feature register --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview"
+                    errorState=1
             else
                     echo -e "::warning::Feature registered!"
             fi
+
+            exit $errorState
