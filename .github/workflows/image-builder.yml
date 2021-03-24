@@ -76,9 +76,12 @@ jobs:
           REGION1: 'northeurope'
           REGION2: 'westeurope'
           OUTNAME: 'aibLinuxCustom'
+          IDENTITY: ${{ secrets.AZURE_CREDENTIALS }}
         with:
           azcliversion: latest
           inlineScript: |
+            grep "id" $IDENTITY
+            
             ACCOUNT_ID=$(az account show --query id -o tsv)
             sed -i -e "s/<subscriptionID>/$ACCOUNT_ID/g" createimage.json
             sed -i -e "s/<rgName>/$RESOURCE_GROUP/g" createimage.json
@@ -86,9 +89,11 @@ jobs:
             sed -i -e "s/<region1>/$REGION1/g" createimage.json
             sed -i -e "s/<region2>/$REGION2/g" createimage.json
             sed -i -e "s/<runOutputName>/$OUTNAME/g" createimage.json
-            # sed -i -e "s/<imgBuilderId>/$BUILDERID/g" createimage.json
+            sed -i -e "s/<imgBuilderId>/$BUILDERID/g" createimage.json
+
+            
 
             cat createimage.json
-            
+
             az resource create -g $RESOURCE_GROUP --properties @createimage.json --is-full-object --resource-type Microsoft.VirtualMachineImages/imageTemplates -n simpleImageTemplate01
             

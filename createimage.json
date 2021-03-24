@@ -5,44 +5,45 @@
     "dependsOn": [],
     "tags": {
         "imagebuilderTemplate": "AzureImageBuilderSIG",
-        "userIdentity": "disabled"
-            },
+        "userIdentity": "enabled"
+    },
+    "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+            "<imgBuilderId>": {}
+        }
+    },
     "properties": {
-
-        "buildTimeoutInMinutes" : 80,
-
-        "vmProfile": 
-            {
+        "buildTimeoutInMinutes": 80,
+        "vmProfile": {
             "vmSize": "Standard_D1_v2",
             "osDiskSizeGB": 30
-            },
-        
+        },
         "source": {
             "type": "PlatformImage",
-                "publisher": "Canonical",
-                "offer": "UbuntuServer",
-                "sku": "18.04-LTS",
-                "version": "latest"
-            
+            "publisher": "Canonical",
+            "offer": "UbuntuServer",
+            "sku": "18.04-LTS",
+            "version": "latest"
         },
         "customize": [
             {
                 "type": "File",
                 "name": "downloadBuildArtifacts",
                 "sourceUri": "https://raw.githubusercontent.com/jmservera/azure-markeplace-vm-image-demo/main/vmcode/html/index.html",
-                "destination":"/tmp/html/index.html"
+                "destination": "/tmp/html/index.html"
             },
             {
                 "type": "File",
                 "name": "downloadBuildArtifacts",
                 "sourceUri": "https://raw.githubusercontent.com/jmservera/azure-markeplace-vm-image-demo/main/vmcode/docker-compose.yaml",
-                "destination":"/tmp/docker-compose.yaml"
+                "destination": "/tmp/docker-compose.yaml"
             },
             {
                 "type": "Shell",
                 "name": "downloadBuildArtifacts",
                 "scriptUri": "https://raw.githubusercontent.com/jmservera/azure-markeplace-vm-image-demo/main/vmcode/install.sh",
-                "destination":"/tmp/install.sh"
+                "destination": "/tmp/install.sh"
             },
             {
                 "type": "Shell",
@@ -54,9 +55,8 @@
                 ]
             }
         ],
-        "distribute": 
-        [
-            {   
+        "distribute": [
+            {
                 "type": "SharedImage",
                 "galleryImageId": "/subscriptions/<subscriptionID>/resourceGroups/<rgName>/providers/Microsoft.Compute/galleries/<sharedImageGalName>/images/<imageDefName>",
                 "runOutputName": "<runOutputName>",
@@ -65,8 +65,8 @@
                     "baseosimg": "ubuntu1804"
                 },
                 "replicationRegions": [
-                  "<region1>",
-                  "<region2>"
+                    "<region1>",
+                    "<region2>"
                 ]
             }
         ]
