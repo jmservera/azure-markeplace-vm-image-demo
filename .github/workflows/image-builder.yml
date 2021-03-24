@@ -69,15 +69,15 @@ jobs:
 
       - name: Build image
         uses: azure/CLI@1.0.4
+        env:
+          RESOURCE_GROUP: 'marketplace-image-demo'
+          IMAGE_DEF_NAME: 'myimagedefname'
+          GALLERY_NAME: 'myimagegal'
+          REGION1: 'northeurope'
+          REGION2: 'westeurope'
+          OUTNAME: 'aibLinuxCustom'
         with:
           azcliversion: latest
-          env:
-            RESOURCE_GROUP: 'marketplace-image-demo'
-            IMAGE_DEF_NAME: 'myimagedefname'
-            GALLERY_NAME: 'myimagegal'
-            REGION1: 'northeurope'
-            REGION2: 'westeurope'
-            OUTNAME: 'aibLinuxCustom'
           inlineScript: |
             ACCOUNT_ID=$(az account show --query id -o tsv)
             sed -i -e "s/<subscriptionID>/$ACCOUNT_ID/g" createimage.json
