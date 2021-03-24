@@ -28,14 +28,15 @@ jobs:
           # Paste output of `az ad sp create-for-rbac` as value of secret variable: AZURE_CREDENTIALS
           creds:  ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Azure CLI script to register and check for registration
+      - name: Azure CLI script to check for registration
         uses: azure/CLI@1.0.4
         with:
           azcliversion: latest
           inlineScript: |
-            az feature register --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview
-            while
-              state=(az feature show --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview -o tsv --query properties.state)
-              [$state != "Registered"]
-            do true; done
-        
+            state=$(az feature show --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview -o tsv --query properties.state)
+            if [ $state != 'Registered' ]; then
+                    >&2 echo -e "Not registered for VirtualMachineTemplatePreview\nPlease run this in your account:\n az feature register --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview"
+                    exit 1
+            else
+                    echo "Feature registered!"
+            fi
