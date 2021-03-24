@@ -86,7 +86,6 @@ jobs:
             sed -i -e "s/<region1>/$REGION1/g" createimage.json
             sed -i -e "s/<region2>/$REGION2/g" createimage.json
             sed -i -e "s/<runOutputName>/$OUTNAME/g" createimage.json
-#            sed -i -e "s/<imgBuilderId>/$BUILDERID/g" createimage.json
-
+            # sed -i -e "s/<imgBuilderId>/$BUILDERID/g" createimage.json
             az resource create -g $RESOURCE_GROUP --properties @createimage.json --is-full-object --resource-type Microsoft.VirtualMachineImages/imageTemplates -n simpleImageTemplate01
             
