@@ -82,7 +82,7 @@ jobs:
         with:
           azcliversion: latest
           inlineScript: |
-            $id=$(echo $IDENTITY | grep "id")
+            id=$(echo $IDENTITY | grep "id")
 
             echo "will try to echo id"
             echo "$id"
