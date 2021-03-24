@@ -35,6 +35,7 @@ jobs:
 
             if [ $state != 'Registeredx' ]; then
                     echo -e "::error::Account not registered for VirtualMachineTemplatePreview\nPlease run this in your account:\n\taz feature register --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview"
+                    exit 1
             else
                     echo -e "::warning::Feature registered!"
             fi
