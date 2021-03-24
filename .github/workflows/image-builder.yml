@@ -34,8 +34,7 @@ jobs:
             state=$(az feature show --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview -o tsv --query properties.state)
 
             if [ $state != 'Registeredx' ]; then
-                    >&2 echo -e "::error Account not registered for VirtualMachineTemplatePreview\nPlease run this in your account:\n\taz feature register --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview"
-                    exit 1
+                    echo -e "::error::Account not registered for VirtualMachineTemplatePreview\nPlease run this in your account:\n\taz feature register --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview"
             else
-                    echo -e "::warning Feature registered!"
+                    echo -e "::warning::Feature registered!"
             fi
