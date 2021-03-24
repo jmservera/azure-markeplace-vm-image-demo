@@ -82,6 +82,8 @@ jobs:
           inlineScript: |
             ls -laF
 
+            echo $IDENTITY
+
             id=$(grep "id" <<< $IDENTITY)
 
             echo "will try to echo id"
