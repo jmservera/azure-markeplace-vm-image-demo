@@ -82,7 +82,10 @@ jobs:
           inlineScript: |
             ls -laF
 
-            grep "id" <<< $IDENTITY                      
+            id=$(grep "id" <<< $IDENTITY)
+
+            echo "will try to echo id"
+            echo "$id"
 
             ACCOUNT_ID=$(az account show --query id -o tsv)
             sed -i -e "s/<subscriptionID>/$ACCOUNT_ID/g" createimage.json
