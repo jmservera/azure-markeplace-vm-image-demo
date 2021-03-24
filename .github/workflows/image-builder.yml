@@ -41,7 +41,7 @@ jobs:
             providers=("Microsoft.VirtualMachineImages" "Microsoft.KeyVault" "Microsoft.Compute" "Microsoft.Storage" "Microsoft.Network")
             for provider in ${providers[@]}; do
               state=$(az provider show --namespace ${provider} -o tsv --query registrationState)
-              if [ $state != 'Registeredd' ]; then
+              if [ $state != 'Registered' ]; then
                       echo -e "::error::Account not registered for provider ${provider}\nPlease run this in your account:\n\t${BLUE}az provider register --namespace ${provider}${NC}"
                       errorState=1
               else
@@ -53,7 +53,7 @@ jobs:
 
             state=$(az feature show --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview -o tsv --query properties.state)
             if [ $state != 'Registered' ]; then
-                    echo -e "::error::Account not registered for VirtualMachineTemplatePreview\nPlease run this in your account:\n\taz feature register --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview"
+                    echo -e "::error::Account not registered for VirtualMachineTemplatePreview\nPlease run this in your account:\n\t${BLUE}az feature register --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview${NC}"
                     errorState=1
             else
                     echo "::debug::Feature registered!"
