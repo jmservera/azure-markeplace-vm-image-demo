@@ -51,7 +51,7 @@ imageRoleDefName="Azure Image Builder Image Def"$dateId
 
 roleId=$(az role definition list --query "[?roleName=='$imageRoleDefName'].{scopes: assignableScopes, id: id} | [?scopes[?ends_with(@,'/resourceGroups/$imageResourceGroup')] ].id" -o tsv)
 
-if [[ -z "$roleId" || "$roleId" != *$imageResourceGroup ]] ; then
+if [[ -z "$roleId" ]] ; then
     echo "Creating role with name '$imageRoleDefName'"
 
     curl https://raw.githubusercontent.com/azure/azvmimagebuilder/master/solutions/12_Creating_AIB_Security_Roles/aibRoleImageCreation.json -o aibRoleImageCreation.json
