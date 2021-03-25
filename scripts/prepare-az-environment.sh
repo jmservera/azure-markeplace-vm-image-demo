@@ -45,8 +45,6 @@ imgBuilderId=/subscriptions/$subscriptionID/resourcegroups/$imageResourceGroup/p
 imageRoleDefName="Azure Image Builder Image Def"$dateId
 
 #query to find the associated role Id
-echo "run: az role definition list --query \"[?roleName=='$imageRoleDefName'].{scopes: assignableScopes, id: id} | [?scopes[?ends_with(@,'/resourceGroups/$imageResourceGroup')] ].id\" -o tsv"
-
 roleId=$(az role definition list --query "[?roleName=='$imageRoleDefName'].{scopes: assignableScopes, id: id} | [?scopes[?ends_with(@,'/resourceGroups/$imageResourceGroup')] ].id" -o tsv)
 
 if [[ -z "$roleId" ]] ; then
