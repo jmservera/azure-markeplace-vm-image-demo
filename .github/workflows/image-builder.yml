@@ -10,6 +10,10 @@ on:
         description: 'Environment name'
         required: true
         default: 'juanserv'
+      resourceGroup:
+        description: 'Resource group name'
+        required: true
+        default: 'marketplace-poc02'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -69,36 +73,12 @@ jobs:
 
             exit $errorState
 
-      - name: Build image
+      - name: prepare environment
         uses: azure/CLI@1.0.4
         env:
-          RESOURCE_GROUP: 'marketplace-image-demo'
-          IMAGE_DEF_NAME: 'myimagedefname'
-          GALLERY_NAME: 'myimagegal'
-          REGION1: 'northeurope'
-          REGION2: 'westeurope'
-          OUTNAME: 'aibLinuxCustom'
-          IDENTITY: ${{ secrets.AZURE_CREDENTIALS }}
+          RESOURCE_GROUP: {{ $github.event.inputs.resourceGroup }}
         with:
           azcliversion: latest
           inlineScript: |
-            echo "try jq"
-            jq
-            id=$(echo $IDENTITY | jq .clientId)
-
-            echo "will try to echo id"
-            echo "$id"
-
-            ACCOUNT_ID=$(az account show --query id -o tsv)
-            sed -i -e "s/<subscriptionID>/$ACCOUNT_ID/g" createimage.json
-            sed -i -e "s/<rgName>/$RESOURCE_GROUP/g" createimage.json
-            sed -i -e "s/<imageDefName>/$IMAGE_DEF_NAME/g" createimage.json
-            sed -i -e "s/<region1>/$REGION1/g" createimage.json
-            sed -i -e "s/<region2>/$REGION2/g" createimage.json
-            sed -i -e "s/<runOutputName>/$OUTNAME/g" createimage.json
-            sed -i -e "s/<imgBuilderId>/$id/g" createimage.json
-
-            cat createimage.json
-
-            az resource create -g $RESOURCE_GROUP --properties @createimage.json --is-full-object --resource-type Microsoft.VirtualMachineImages/imageTemplates -n simpleImageTemplate01
+            ./scripts/prepare-az-environment.sh $RESOURCE_GROUP
             
