@@ -76,7 +76,7 @@ jobs:
       - name: prepare environment
         uses: azure/CLI@1.0.4
         env:
-          RESOURCE_GROUP: {{ $github.event.inputs.resourceGroup }}
+          RESOURCE_GROUP: ${{ github.event.inputs.resourceGroup }}
         with:
           azcliversion: latest
           inlineScript: |
