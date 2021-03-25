@@ -17,10 +17,16 @@ fi
 
 imageResourceGroup=$1
 
+echo "Deleting role assignments in rg $imageResourceGroup"
+
 az role assignment delete -g $imageResourceGroup
+
+echo "Deleting role definitions assigned to this rg $imageResourceGroup"
 
 az role definition list --query "[*].{scopes: assignableScopes, roleName: roleName} | [?scopes[?ends_with(@,'/resourceGroups/$imageResourceGroup')] ].roleName" | xargs -I{} az role definition delete -g $imageResourceGroup --name '{}'
 
+echo "Deleting user identities in $imageResourceGroup"
 az identity list -g $imageResourceGroup --query "[?starts_with(name,'$_BASENAME') ].id" -o tsv | xargs -I{} az identity delete -g $imageResourceGroup --ids {}
 
-az group delete -n '$imageResourceGroup' -y
+echo "Deleting $imageResourceGroup"
+az group delete -n $imageResourceGroup -y
