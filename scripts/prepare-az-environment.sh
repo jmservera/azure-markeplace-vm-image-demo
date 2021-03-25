@@ -47,7 +47,9 @@ imgBuilderId=/subscriptions/$subscriptionID/resourcegroups/$imageResourceGroup/p
 # download preconfigured role definition example
 imageRoleDefName="Azure Image Builder Image Def"$dateId
 
-roleId=$(az role definition list --query "[?roleName=='$imageRoleDefName'].id" -o tsv)
+#query to find the associated role Id
+
+roleId=$(az role definition list --query "[?roleName=='$imageRoleDefName'].{scopes: assignableScopes, id: id} | [?scopes[?ends_with(@,'/resourceGroups/$imageResourceGroup')] ].id" -o tsv)
 
 if [[ -z "$roleId" || "$roleId" != *$imageResourceGroup ]] ; then
     echo "Creating role with name '$imageRoleDefName'"
