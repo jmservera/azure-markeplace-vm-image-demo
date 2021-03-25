@@ -19,7 +19,7 @@ imageResourceGroup=$1
 
 assignments=$(az role assignment list -g $imageResourceGroup)
 
-if [ $assignments != '[]' ]; then
+if [[ $assignments != '[]' ]]; then
     echo "Deleting role assignments in rg $imageResourceGroup"
     az role assignment delete -g $imageResourceGroup
 else
@@ -33,7 +33,7 @@ az role definition list --query "[*].{scopes: assignableScopes, roleName: roleNa
 echo "Deleting user identities in $imageResourceGroup"
 az identity list -g $imageResourceGroup --query "[?starts_with(name,'$_BASENAME') ].id" -o tsv | xargs -I{} az identity delete -g $imageResourceGroup --ids {}
 
-if [ $2 == '--deleterg' ]; then
+if [[ $2 == '--deleterg' ]]; then
     echo "Deleting $imageResourceGroup"
     az group delete -n $imageResourceGroup -y
 fi
