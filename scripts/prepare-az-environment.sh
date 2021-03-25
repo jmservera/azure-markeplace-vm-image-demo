@@ -65,6 +65,13 @@ if [[ -z "$roleId" ]] ; then
 
     # create role definitions
     roleId=$(az role definition create --role-definition /tmp/aibRoleImageCreation.json --query id -o tsv)
+    
+    echo -n "Wait until role definition lands "
+    roleId=$(az role definition list --query "[?roleName=='$imageRoleDefName'].{scopes: assignableScopes, id: id} | [?scopes[?ends_with(@,'/resourceGroups/$imageResourceGroup')] ].id" -o tsv)    
+    while [[ -z "$roleId" ]]; do
+        echo -n "."
+    done
+    echo ""
 else
     echo "Role '$imageRoleDefName' already exists. Skipping creation"
 fi
@@ -73,7 +80,8 @@ assignmentId=$(az role assignment list -g $imageResourceGroup --query "[?roleDef
 
 if [ -z $assignmentId ] ; then
     echo "Creating assignment"
-# grant role definition to the user assigned identity
+
+    # grant role definition to the user assigned identity
     az role assignment create \
         --assignee $imgBuilderCliId \
         --role $roleId \
