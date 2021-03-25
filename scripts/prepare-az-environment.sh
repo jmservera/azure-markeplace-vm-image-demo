@@ -30,7 +30,15 @@ if [ -z "$imgBuilderCliId" ]; then
 
     echo "Identity does not exist, creating a new identity with name $identityName"
 
-    imgBuilderCliId=$(az identity create -g $imageResourceGroup -n $identityName --query clientId -o tsv)
+    principalId=$(az identity create -g $imageResourceGroup -n $identityName --query principalId -o tsv)
+
+    echo -n "Wait for service principal creation "
+    while        
+        echo -n "." && sleep 3
+        imgBuilderCliId=$(az ad sp show --id $principalId --query appId -o tsv)
+        [[ -z "$imgBuilderCliId" ]]
+    do true; done
+    echo ""
 else    
     identityName=$(az identity list -g $imageResourceGroup --query "[?starts_with(name,'$_BASENAME') ].name" -o tsv)
 
@@ -67,8 +75,8 @@ if [[ -z "$roleId" ]] ; then
         roleId=$(az role definition list --query "[?roleName=='$imageRoleDefName'].{scopes: assignableScopes, id: id} | [?scopes[?ends_with(@,'/resourceGroups/$imageResourceGroup')] ].id" -o tsv)
         [[ -z "$roleId" ]]
     do true; done
-    # wait extra 5 seconds, just in case, AAD takes its time
-    echo "" && sleep 5     
+
+    echo ""
 else
     echo "Role '$imageRoleDefName' already exists. Skipping creation"
 fi
