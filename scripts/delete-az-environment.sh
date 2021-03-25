@@ -19,7 +19,7 @@ imageResourceGroup=$1
 
 assignments=$(az role assignment list -g $imageResourceGroup)
 
-if [ $assignments != "[]" ]; then
+if [ $assignments != '[]' ]; then
     echo "Deleting role assignments in rg $imageResourceGroup"
     az role assignment delete -g $imageResourceGroup
 else
