@@ -77,5 +77,6 @@ jobs:
         with:
           azcliversion: latest
           inlineScript: |
+            echo "start"
             ./scripts/prepare-az-environment.sh $RESOURCE_GROUP
             
