@@ -54,15 +54,16 @@ roleId=$(az role definition list --query "[?roleName=='$imageRoleDefName'].{scop
 if [[ -z "$roleId" ]] ; then
     echo "Creating role with name '$imageRoleDefName'"
 
-    curl https://raw.githubusercontent.com/azure/azvmimagebuilder/master/solutions/12_Creating_AIB_Security_Roles/aibRoleImageCreation.json -o aibRoleImageCreation.json
+    rm /tmp/aibRoleImageCreation.json
+    curl https://raw.githubusercontent.com/azure/azvmimagebuilder/master/solutions/12_Creating_AIB_Security_Roles/aibRoleImageCreation.json -o /tmp/aibRoleImageCreation.json
 
     # update the definition
-    sed -i -e "s/<subscriptionID>/$subscriptionID/g" aibRoleImageCreation.json
-    sed -i -e "s/<rgName>/$imageResourceGroup/g" aibRoleImageCreation.json
-    sed -i -e "s/Azure Image Builder Service Image Creation Role/$imageRoleDefName/g" aibRoleImageCreation.json
+    sed -i -e "s/<subscriptionID>/$subscriptionID/g" /tmp/aibRoleImageCreation.json
+    sed -i -e "s/<rgName>/$imageResourceGroup/g" /tmp/aibRoleImageCreation.json
+    sed -i -e "s/Azure Image Builder Service Image Creation Role/$imageRoleDefName/g" /tmp/aibRoleImageCreation.json
 
     # create role definitions
-    roleId=$(az role definition create --role-definition ./aibRoleImageCreation.json --query id -o tsv)
+    roleId=$(az role definition create --role-definition /tmp/aibRoleImageCreation.json --query id -o tsv)
 else
     echo "Role '$imageRoleDefName' already exists. Skipping creation"
 fi
