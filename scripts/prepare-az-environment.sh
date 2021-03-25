@@ -70,6 +70,7 @@ if [[ -z "$roleId" ]] ; then
     roleId=$(az role definition list --query "[?roleName=='$imageRoleDefName'].{scopes: assignableScopes, id: id} | [?scopes[?ends_with(@,'/resourceGroups/$imageResourceGroup')] ].id" -o tsv)    
     while [[ -z "$roleId" ]]; do
         echo -n "." && sleep 5
+        roleId=$(az role definition list --query "[?roleName=='$imageRoleDefName'].{scopes: assignableScopes, id: id} | [?scopes[?ends_with(@,'/resourceGroups/$imageResourceGroup')] ].id" -o tsv)
     done
     echo ""
 else
