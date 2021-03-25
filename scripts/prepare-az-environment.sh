@@ -30,10 +30,7 @@ if [ -z "$imgBuilderCliId" ]; then
 
     echo "Identity does not exist, creating a new identity with name $identityName"
 
-    az identity create -g $imageResourceGroup -n $identityName
-
-    # get identity id
-    imgBuilderCliId=$(az identity show -g $imageResourceGroup -n $identityName --query clientId -o tsv)
+    imgBuilderCliId=$(az identity create -g $imageResourceGroup -n $identityName --query clientId -o tsv)
 else    
     identityName=$(az identity list -g $imageResourceGroup --query "[?starts_with(name,'$_BASENAME') ].name" -o tsv)
 
@@ -83,10 +80,7 @@ if [ -z $assignmentId ] ; then
     echo "Creating assignment"
 
     # grant role definition to the user assigned identity
-    az role assignment create \
-        --assignee $imgBuilderCliId \
-        --role $roleId \
-        --scope /subscriptions/$subscriptionID/resourceGroups/$imageResourceGroup
+    az role assignment create --assignee $imgBuilderCliId --role $roleId --scope /subscriptions/$subscriptionID/resourceGroups/$imageResourceGroup
 else
     echo "Assignment already exists. Skipping creation"
 fi
