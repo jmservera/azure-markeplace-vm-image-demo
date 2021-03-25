@@ -54,7 +54,7 @@ roleId=$(az role definition list --query "[?roleName=='$imageRoleDefName'].{scop
 if [[ -z "$roleId" ]] ; then
     echo "Creating role with name '$imageRoleDefName'"
 
-    rm /tmp/aibRoleImageCreation.json
+    rm -f /tmp/aibRoleImageCreation.json
     curl https://raw.githubusercontent.com/azure/azvmimagebuilder/master/solutions/12_Creating_AIB_Security_Roles/aibRoleImageCreation.json -o /tmp/aibRoleImageCreation.json
 
     # update the definition
