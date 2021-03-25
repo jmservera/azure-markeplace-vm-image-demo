@@ -35,7 +35,7 @@ if [ -z "$imgBuilderCliId" ]; then
     echo -n "Wait for service principal creation "
     while        
         echo -n "." && sleep 3
-        imgBuilderCliId=$(az ad sp list --display-name $identityName --query appId -o tsv)
+        imgBuilderCliId=$(az ad sp list --display-name $identityName --query [].appId -o tsv)
         [[ -z "$imgBuilderCliId" ]]
     do true; done
     echo ""
