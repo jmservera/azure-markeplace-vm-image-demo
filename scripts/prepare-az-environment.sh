@@ -66,12 +66,12 @@ if [[ -z "$roleId" ]] ; then
     # create role definitions
     roleId=$(az role definition create --role-definition /tmp/aibRoleImageCreation.json --query id -o tsv)
     
-    echo -n "Wait until role definition lands "
-    roleId=$(az role definition list --query "[?roleName=='$imageRoleDefName'].{scopes: assignableScopes, id: id} | [?scopes[?ends_with(@,'/resourceGroups/$imageResourceGroup')] ].id" -o tsv)    
-    while [[ -z "$roleId" ]]; do
-        echo -n "." && sleep 5
+    echo -n "Wait for role definition creation "
+    while
+        echo -n "." && sleep 3
         roleId=$(az role definition list --query "[?roleName=='$imageRoleDefName'].{scopes: assignableScopes, id: id} | [?scopes[?ends_with(@,'/resourceGroups/$imageResourceGroup')] ].id" -o tsv)
-    done
+        [[ -z "$roleId" ]]
+    do true; done
     echo ""
 else
     echo "Role '$imageRoleDefName' already exists. Skipping creation"
