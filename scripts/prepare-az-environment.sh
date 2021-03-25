@@ -16,8 +16,9 @@ if (( $# != 1 )); then
 fi
 
 imageResourceGroup=$1
-
 subscriptionID=$(az account show --query id -o tsv)
+
+echo "Preparing resource group $1 in subscription $subscriptionID"
 
 # Check if an identity already exists
 imgBuilderCliId=$(az identity list -g $imageResourceGroup --query "[?starts_with(name,'$_BASENAME') ].clientId" -o tsv)
@@ -27,12 +28,16 @@ if [ -z "$imgBuilderCliId" ]; then
     # create user assigned identity for image builder to access the storage account where the script is located
     identityName=$_BASENAME$dateId
 
+    echo "Identity does not exist, creating a new identity with name $identityName"
+
     az identity create -g $imageResourceGroup -n $identityName
 
     # get identity id
     imgBuilderCliId=$(az identity show -g $imageResourceGroup -n $identityName --query clientId -o tsv)
-else
+else    
     identityName=$(az identity list -g $imageResourceGroup --query "[?starts_with(name,'$_BASENAME') ].name" -o tsv)
+
+    echo "Identity already exists with name $identityName"
     dateId=${identityName:${#_BASENAME}}
 fi
 
@@ -40,13 +45,15 @@ fi
 imgBuilderId=/subscriptions/$subscriptionID/resourcegroups/$imageResourceGroup/providers/Microsoft.ManagedIdentity/userAssignedIdentities/$identityName
 
 # download preconfigured role definition example
-curl https://raw.githubusercontent.com/azure/azvmimagebuilder/master/solutions/12_Creating_AIB_Security_Roles/aibRoleImageCreation.json -o aibRoleImageCreation.json
-
 imageRoleDefName="Azure Image Builder Image Def"$dateId
 
 roleId=$(az role definition list --name "$imageRoleDefName" --query [].assignableScopes[0] -o tsv)
 
 if [[ -z "$roleId" || "$roleId" != *$imageResourceGroup ]] ; then
+    echo "Creating role with name '$imageRoleDefName'"
+
+    curl https://raw.githubusercontent.com/azure/azvmimagebuilder/master/solutions/12_Creating_AIB_Security_Roles/aibRoleImageCreation.json -o aibRoleImageCreation.json
+
     # update the definition
     sed -i -e "s/<subscriptionID>/$subscriptionID/g" aibRoleImageCreation.json
     sed -i -e "s/<rgName>/$imageResourceGroup/g" aibRoleImageCreation.json
@@ -54,7 +61,11 @@ if [[ -z "$roleId" || "$roleId" != *$imageResourceGroup ]] ; then
 
     # create role definitions
     az role definition create --role-definition ./aibRoleImageCreation.json
+else
+    echo "Role '$imageRoleName' already exists."
 fi
+
+echo "Creating role assignment"
 
 # grant role definition to the user assigned identity
 az role assignment create \
