@@ -69,7 +69,7 @@ if [[ -z "$roleId" ]] ; then
     echo -n "Wait until role definition lands "
     roleId=$(az role definition list --query "[?roleName=='$imageRoleDefName'].{scopes: assignableScopes, id: id} | [?scopes[?ends_with(@,'/resourceGroups/$imageResourceGroup')] ].id" -o tsv)    
     while [[ -z "$roleId" ]]; do
-        echo -n "."
+        echo -n "." && sleep 5
     done
     echo ""
 else
