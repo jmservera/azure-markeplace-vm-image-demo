@@ -7,6 +7,7 @@ _NC='\033[0m'
 
 _FORMAT="$0 resourceGroupName"
 
+_BASENAME=aibBuiUserId
 
 # arguments check
 if (( $# != 1 )); then
@@ -18,12 +19,22 @@ imageResourceGroup=$1
 
 subscriptionID=$(az account show --query id -o tsv)
 
-# create user assigned identity for image builder to access the storage account where the script is located
-identityName=aibBuiUserId$(date +'%s')
-az identity create -g $imageResourceGroup -n $identityName
+# Check if an identity already exists
+imgBuilderCliId=$(az identity list -g $imageResourceGroup --query "[?starts_with(name,'$_BASENAME') ].clientId" -o tsv)
 
-# get identity id
-imgBuilderCliId=$(az identity show -g $imageResourceGroup -n $identityName | grep "clientId" | cut -c16- | tr -d '",')
+if [ -z "$imgBuilderCliId" ]; then
+    dateId=$(date +'%s')
+    # create user assigned identity for image builder to access the storage account where the script is located
+    identityName=$_BASENAME$dateId
+
+    az identity create -g $imageResourceGroup -n $identityName
+
+    # get identity id
+    imgBuilderCliId=$(az identity show -g $imageResourceGroup -n $identityName --query clientId -o tsv)
+else
+    identityName=$(az identity list -g $imageResourceGroup --query "[?starts_with(name,'$_BASENAME') ].name" -o tsv)
+    dateId=${identityName:${#_BASENAME}}
+fi
 
 # get the user identity URI, needed for the template
 imgBuilderId=/subscriptions/$subscriptionID/resourcegroups/$imageResourceGroup/providers/Microsoft.ManagedIdentity/userAssignedIdentities/$identityName
@@ -31,15 +42,19 @@ imgBuilderId=/subscriptions/$subscriptionID/resourcegroups/$imageResourceGroup/p
 # download preconfigured role definition example
 curl https://raw.githubusercontent.com/azure/azvmimagebuilder/master/solutions/12_Creating_AIB_Security_Roles/aibRoleImageCreation.json -o aibRoleImageCreation.json
 
-imageRoleDefName="Azure Image Builder Image Def"$(date +'%s')
+imageRoleDefName="Azure Image Builder Image Def"$dateId
 
-# update the definition
-sed -i -e "s/<subscriptionID>/$subscriptionID/g" aibRoleImageCreation.json
-sed -i -e "s/<rgName>/$imageResourceGroup/g" aibRoleImageCreation.json
-sed -i -e "s/Azure Image Builder Service Image Creation Role/$imageRoleDefName/g" aibRoleImageCreation.json
+roleId=$(az role definition list --name "$imageRoleDefName" --query [].assignableScopes[0] -o tsv)
 
-# create role definitions
-az role definition create --role-definition ./aibRoleImageCreation.json
+if [[ -z "$roleId" || "$roleId" != *$imageResourceGroup ]] ; then
+    # update the definition
+    sed -i -e "s/<subscriptionID>/$subscriptionID/g" aibRoleImageCreation.json
+    sed -i -e "s/<rgName>/$imageResourceGroup/g" aibRoleImageCreation.json
+    sed -i -e "s/Azure Image Builder Service Image Creation Role/$imageRoleDefName/g" aibRoleImageCreation.json
+
+    # create role definitions
+    az role definition create --role-definition ./aibRoleImageCreation.json
+fi
 
 # grant role definition to the user assigned identity
 az role assignment create \
