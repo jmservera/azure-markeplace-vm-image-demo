@@ -64,7 +64,7 @@ if [[ -z "$roleId" ]] ; then
     # create role definitions
     roleId=$(az role definition create --role-definition ./aibRoleImageCreation.json --query id -o tsv)
 else
-    echo "Role '$imageRoleName' already exists. Skipping creation"
+    echo "Role '$imageRoleDefName' already exists. Skipping creation"
 fi
 
 assignmentId=$(az role assignment list -g $imageResourceGroup --query "[?roleDefinitionId=='$roleId'].id" -o tsv)
