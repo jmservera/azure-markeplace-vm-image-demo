@@ -37,7 +37,7 @@ if [ -z "$imgBuilderCliId" ]; then
 else    
     identityName=$(az identity list -g $imageResourceGroup --query "[?starts_with(name,'$_BASENAME') ].name" -o tsv)
 
-    echo "Identity already exists with name $identityName"
+    echo "Identity already exists with name $identityName. Skipping creation."
     dateId=${identityName:${#_BASENAME}}
 fi
 
@@ -47,7 +47,7 @@ imgBuilderId=/subscriptions/$subscriptionID/resourcegroups/$imageResourceGroup/p
 # download preconfigured role definition example
 imageRoleDefName="Azure Image Builder Image Def"$dateId
 
-roleId=$(az role definition list --name "$imageRoleDefName" --query [].assignableScopes[0] -o tsv)
+roleId=$(az role definition list --query "[?roleName=='$imageRoleDefName'].id" -o tsv)
 
 if [[ -z "$roleId" || "$roleId" != *$imageResourceGroup ]] ; then
     echo "Creating role with name '$imageRoleDefName'"
@@ -60,15 +60,20 @@ if [[ -z "$roleId" || "$roleId" != *$imageResourceGroup ]] ; then
     sed -i -e "s/Azure Image Builder Service Image Creation Role/$imageRoleDefName/g" aibRoleImageCreation.json
 
     # create role definitions
-    az role definition create --role-definition ./aibRoleImageCreation.json
+    roleId=$(az role definition create --role-definition ./aibRoleImageCreation.json --query id -o tsv)
 else
-    echo "Role '$imageRoleName' already exists."
+    echo "Role '$imageRoleName' already exists. Skipping creation"
 fi
 
-echo "Creating role assignment"
+assignmentId=$(az role assignment list -g $imageResourceGroup --query "[?roleDefinitionId=='$roleId'].id" -o tsv)
 
+if [ -z $assignmentId ] ; then
+    echo "Creating assignment"
 # grant role definition to the user assigned identity
-az role assignment create \
-    --assignee $imgBuilderCliId \
-    --role $imageRoleDefName \
-    --scope /subscriptions/$subscriptionID/resourceGroups/$imageResourceGroup
+    az role assignment create \
+        --assignee $imgBuilderCliId \
+        --role $roleId \
+        --scope /subscriptions/$subscriptionID/resourceGroups/$imageResourceGroup
+else
+    echo "Assignment already exists. Skipping creation"
+fi
