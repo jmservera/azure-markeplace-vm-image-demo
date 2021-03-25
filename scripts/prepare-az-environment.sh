@@ -30,12 +30,12 @@ if [ -z "$imgBuilderCliId" ]; then
 
     echo "Identity does not exist, creating a new identity with name $identityName"
 
-    principalId=$(az identity create -g $imageResourceGroup -n $identityName --query principalId -o tsv)
+    imgBuilderCliId=$(az identity create -g $imageResourceGroup -n $identityName --query clientId -o tsv)
 
     echo -n "Wait for service principal creation "
     while        
         echo -n "." && sleep 3
-        imgBuilderCliId=$(az ad sp show --id $principalId --query appId -o tsv)
+        imgBuilderCliId=$(az ad sp list --display-name $identityName --query appId -o tsv)
         [[ -z "$imgBuilderCliId" ]]
     do true; done
     echo ""
