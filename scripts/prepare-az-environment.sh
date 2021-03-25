@@ -67,7 +67,8 @@ if [[ -z "$roleId" ]] ; then
         roleId=$(az role definition list --query "[?roleName=='$imageRoleDefName'].{scopes: assignableScopes, id: id} | [?scopes[?ends_with(@,'/resourceGroups/$imageResourceGroup')] ].id" -o tsv)
         [[ -z "$roleId" ]]
     do true; done
-    echo ""
+    # wait extra 5 seconds, just in case, AAD takes its time
+    echo "" && sleep 5     
 else
     echo "Role '$imageRoleDefName' already exists. Skipping creation"
 fi
