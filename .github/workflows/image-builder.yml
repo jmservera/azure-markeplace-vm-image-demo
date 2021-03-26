@@ -38,7 +38,7 @@ jobs:
         run: |
           cd  ${{ GITHUB.WORKSPACE }}
           mkdir workflow-artifacts/        
-          cp ${{ GITHUB.WORKSPACE }}/vmcode/install.sh ${{ GITHUB.WORKSPACE }}/workflow-artifacts/install.sh
+          cp -r ${{ GITHUB.WORKSPACE }}/vmcode/* ${{ GITHUB.WORKSPACE }}/workflow-artifacts/
           
       - name: Azure Login
         uses: Azure/login@v1.1
@@ -89,7 +89,11 @@ jobs:
           managed-identity: '${{ github.event.inputs.managedIdentity }}'
           location: 'northeurope'
           source-os-type: 'linux'        
-          source-image: Canonical:UbuntuServer:18.04-LTS:latest        
-          customizer-script: ./install.sh
-
-            
+          source-image: Canonical:UbuntuServer:18.04-LTS:latest
+          customizer-source: ${{ GITHUB.WORKSPACE }}/workflow-artifacts/
+          customizer-script: |
+            echo "*********** current"
+            ls
+            echo "/tmp"
+            ls /tmp
+            ./install.sh
