@@ -14,6 +14,10 @@ on:
         description: 'Resource group name'
         required: true
         default: 'marketplace-poc02'
+      managedIdentity:
+        description: 'Managed Identity for creating the vm images'
+        required: true
+        default: 'aibBuiUserId1616749594'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -71,13 +75,16 @@ jobs:
             fi
 
             exit $errorState
+            
+      - name: BUILD-CUSTOM-VM-IMAGE
+        uses: azure/build-vm-image@v0
+        with:        
+          resource-group-name: '${{ github.event.inputs.resourceGroup }}'
+          managed-identity: '${{ github.event.inputs.managedIdentity }}'
+          location: 'norteurope'
+          source-os-type: 'linux'        
+          source-image: Canonical:UbuntuServer:18.04-LTS:latest        
+          customizer-script: |
+            ./vmcode/install.sh
 
-      - name: prepare environment
-        uses: azure/CLI@1.0.4
-        env:
-          RESOURCE_GROUP: ${{ github.event.inputs.resourceGroup }}
-        with:
-          azcliversion: latest
-          inlineScript: |
-            ./scripts/prepare-az-environment.sh $RESOURCE_GROUP
             
