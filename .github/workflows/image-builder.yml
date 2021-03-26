@@ -36,10 +36,8 @@ jobs:
 
       - name: Create Workflow Artifacts
         run: |
-          pwd
-          ls
           cd  ${{ GITHUB.WORKSPACE }}
-          mkdir worflow-artifacts/        
+          mkdir workflow-artifacts/        
           cp ${{ GITHUB.WORKSPACE }}/vmcode/install.sh ${{ GITHUB.WORKSPACE }}/workflow-artifacts/install.sh
           
       - name: Azure Login
