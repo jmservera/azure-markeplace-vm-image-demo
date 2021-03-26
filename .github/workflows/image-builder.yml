@@ -33,7 +33,13 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-      
+
+      - name: Create Workflow Artifacts
+        run: |
+          cd  ${{ GITHUB.WORKSPACE }}
+          mkdir worflow-artifacts/        
+          cp vmcode/install.sh ${{ GITHUB.WORKSPACE }}/workflow-artifacts/
+          
       - name: Azure Login
         uses: Azure/login@v1.1
         with:
@@ -75,13 +81,6 @@ jobs:
             fi
 
             exit $errorState
-
-      - name: Create Workflow Artifacts
-        run: |
-          cd  "$GITHUB_WORKFLOW"
-          mkdir worflow-artifacts/        
-          cp vmcode/install.sh $GITHUB_WORKSPACE/workflow-artifacts/
-
 
       - name: BUILD-CUSTOM-VM-IMAGE
         uses: azure/build-vm-image@v0
