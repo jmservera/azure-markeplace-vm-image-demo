@@ -48,7 +48,7 @@ jobs:
 
       - name: Check az providers and feature registration
         uses: azure/CLI@1.0.4
-        if: ${{ false }}
+        #if: ${{ false }}
         with:
           azcliversion: latest
           inlineScript: |
