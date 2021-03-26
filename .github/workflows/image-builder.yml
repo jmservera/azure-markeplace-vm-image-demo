@@ -81,7 +81,7 @@ jobs:
         with:        
           resource-group-name: '${{ github.event.inputs.resourceGroup }}'
           managed-identity: '${{ github.event.inputs.managedIdentity }}'
-          location: 'norteurope'
+          location: 'northeurope'
           source-os-type: 'linux'        
           source-image: Canonical:UbuntuServer:18.04-LTS:latest        
           customizer-script: |
