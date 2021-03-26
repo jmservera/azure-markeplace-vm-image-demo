@@ -38,7 +38,7 @@ jobs:
         run: |
           cd  ${{ GITHUB.WORKSPACE }}
           mkdir worflow-artifacts/        
-          cp vmcode/install.sh ${{ GITHUB.WORKSPACE }}/workflow-artifacts/
+          cp ${{ GITHUB.WORKSPACE }}/vmcode/install.sh ${{ GITHUB.WORKSPACE }}/workflow-artifacts/
           
       - name: Azure Login
         uses: Azure/login@v1.1
