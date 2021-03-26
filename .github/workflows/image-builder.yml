@@ -90,10 +90,10 @@ jobs:
           location: 'northeurope'
           source-os-type: 'linux'        
           source-image: Canonical:UbuntuServer:18.04-LTS:latest
-          customizer-source: ${{ GITHUB.WORKSPACE }}/workflow-artifacts/
           customizer-script: |
             echo "*********** current"
             ls
             echo "/tmp"
             ls /tmp
+            cd /tmp
             ./install.sh
