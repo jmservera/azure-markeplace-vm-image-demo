@@ -88,6 +88,8 @@ if [ -z $assignmentId ] ; then
 
     # grant role definition to the user assigned identity
     az role assignment create --assignee $imgBuilderCliId --role $roleId --scope /subscriptions/$subscriptionID/resourceGroups/$imageResourceGroup
+
+    
 else
     echo "Assignment already exists. Skipping creation"
 fi
