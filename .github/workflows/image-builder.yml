@@ -94,4 +94,4 @@ jobs:
             cd /tmp/workflow-artifacts
             ls -la
             echo '######### run install.sh'
-            ./install.sh
+            sudo sh install.sh
