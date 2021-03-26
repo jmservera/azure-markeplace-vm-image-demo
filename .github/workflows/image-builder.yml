@@ -94,5 +94,5 @@ jobs:
             echo "*********** current"
             cd /tmp/workflow-artifacts
             ls
-            ech "*********** run install.sh"
+            echo "*********** run install.sh"
             ./install.sh
