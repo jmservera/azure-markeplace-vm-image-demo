@@ -91,7 +91,8 @@ jobs:
           source-os-type: 'linux'        
           source-image: Canonical:UbuntuServer:18.04-LTS:latest
           customizer-script: |
-            cd /tmp/workflow-artifacts
-            ls -la
+            mkdir /opt/app/
+            cp -r /tmp/workflow-artifact/* /opt/app/
             echo '######### run install.sh'
+            cd /opt/app
             sudo sh install.sh
