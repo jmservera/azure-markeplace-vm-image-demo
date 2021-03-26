@@ -92,5 +92,6 @@ jobs:
           source-image: Canonical:UbuntuServer:18.04-LTS:latest
           customizer-script: |
             cd /tmp/workflow-artifacts
-            echo "*********** run install.sh"
-            sudo ./install.sh
+            ls -la
+            echo '######### run install.sh'
+            ./install.sh
