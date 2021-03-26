@@ -20,14 +20,22 @@ if (( $# < 1 )); then
     exit 1
 fi
 
-
 subscriptionID=$(az account show --query id -o tsv)
 resourceGroupName=$1
 
-adName="github-$resourceGroupName-1"
+adName="github-$resourceGroupName"
 
-credentials=$(az ad sp create-for-rbac --name $adName --role owner --scopes /subscriptions/$subscriptionID --sdk-auth)
-az role assignment create --assignee "http://$adName"  --role "User Access Administrator"
+
+spId=$(az ad sp list --display-name "$adName" --query [].objectId -o tsv)
+if [[ -n "$spId" ]]
+then
+    az ad sp delete --id $spId
+fi
+
+
+credentials=$(az ad sp create-for-rbac --name $adName --role contributor --scopes /subscriptions/$subscriptionID/resourceGroups/$resourceGroupName --sdk-auth)
+
+#az role assignment create --assignee "http://$adName" --role "User Access Administrator"
 
 echo -e "Use this credentials in GitHub:\n$credentials"
 
