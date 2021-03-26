@@ -9,7 +9,7 @@ on:
       environment:
         description: 'Environment name'
         required: true
-        default: 'juanserv'
+        default: 'jm-azure'
       resourceGroup:
         description: 'Resource group name'
         required: true
