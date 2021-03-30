@@ -32,10 +32,7 @@ then
     az ad sp delete --id $spId
 fi
 
-
 credentials=$(az ad sp create-for-rbac --name $adName --role contributor --scopes /subscriptions/$subscriptionID/resourceGroups/$resourceGroupName --sdk-auth)
-
-#az role assignment create --assignee "http://$adName" --role "User Access Administrator"
 
 echo -e "Use this credentials in GitHub:\n$credentials"
 
