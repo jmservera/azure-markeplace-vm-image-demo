@@ -9,11 +9,15 @@ on:
       environment:
         description: 'Environment name'
         required: true
-        default: 'juanserv'
+        default: 'jm-azure'
       resourceGroup:
         description: 'Resource group name'
         required: true
-        default: 'marketplace-poc02'
+        default: 'marketplace-poc03'
+      managedIdentity:
+        description: 'Managed Identity for creating the vm images'
+        required: true
+        default: 'aibBuiUserId1616749594'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -29,7 +33,13 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-      
+
+      - name: Create Workflow Artifacts
+        run: |
+          cd  ${{ GITHUB.WORKSPACE }}
+          mkdir workflow-artifacts/        
+          cp -r ${{ GITHUB.WORKSPACE }}/vmcode/* ${{ GITHUB.WORKSPACE }}/workflow-artifacts/
+          
       - name: Azure Login
         uses: Azure/login@v1.1
         with:
@@ -38,7 +48,7 @@ jobs:
 
       - name: Check az providers and feature registration
         uses: azure/CLI@1.0.4
-        if: ${{ false }}
+        #if: ${{ false }}
         with:
           azcliversion: latest
           inlineScript: |
@@ -72,12 +82,18 @@ jobs:
 
             exit $errorState
 
-      - name: prepare environment
-        uses: azure/CLI@1.0.4
-        env:
-          RESOURCE_GROUP: ${{ github.event.inputs.resourceGroup }}
-        with:
-          azcliversion: latest
-          inlineScript: |
-            ./scripts/prepare-az-environment.sh $RESOURCE_GROUP
-            
+      - name: BUILD-CUSTOM-VM-IMAGE
+        uses: azure/build-vm-image@v0
+        with:        
+          resource-group-name: '${{ github.event.inputs.resourceGroup }}'
+          managed-identity: '${{ github.event.inputs.managedIdentity }}'
+          location: 'northeurope'
+          source-os-type: 'linux'        
+          source-image: Canonical:UbuntuServer:18.04-LTS:latest
+          customizer-script: |
+            env
+            mkdir /opt/app/
+            cp -r /tmp/workflow-artifacts/* /opt/app/
+            echo '######### run install.sh'
+            cd /opt/app
+            sudo sh install.sh
