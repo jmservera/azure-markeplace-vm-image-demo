@@ -1,8 +1,8 @@
 #!/bin/bash -e
 
 ###############################################################################
-# This script must be run with admin rights, it creates the resource group and 
-# the Service Principal for running the environment preparation
+# This script must be run with admin rights, it creates the service principal
+# that should be used as a secret in GitHub to run the actions
 ###############################################################################
 
 # constants
@@ -10,7 +10,7 @@ _BLUE='\033[1;34m'
 _RED='\033[1;31m'
 _NC='\033[0m'
 
-_FORMAT="$0 resourceGroupName"
+_FORMAT="$0 uniqueName"
 
 _BASENAME=aibBuiUserId
 
@@ -21,18 +21,19 @@ if (( $# < 1 )); then
 fi
 
 subscriptionID=$(az account show --query id -o tsv)
-resourceGroupName=$1
+uniqueName=$1
 
-adName="github-$resourceGroupName"
+adName="github-$uniqueName"
 
 
 spId=$(az ad sp list --display-name "$adName" --query [].objectId -o tsv)
 if [[ -n "$spId" ]]
 then
+    echo -e "Principal $adName already exists.${_RED}This principal will be deleted before creating it again.${_NC}"
     az ad sp delete --id $spId
 fi
 
-credentials=$(az ad sp create-for-rbac --name $adName --role contributor --scopes /subscriptions/$subscriptionID/resourceGroups/$resourceGroupName --sdk-auth)
+credentials=$(az ad sp create-for-rbac --name $adName --role contributor --scopes /subscriptions/$subscriptionID --sdk-auth)
 
-echo -e "Use this credentials in GitHub:\n$credentials"
+echo -e "Credentials created, use the text below as a GitHub secret:\n$credentials"
 
